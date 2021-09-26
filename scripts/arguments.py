@@ -1,5 +1,7 @@
 import argparse
 
+from scripts.time_manager import get_today_str
+
 
 def sel_arguments():
 
@@ -19,6 +21,6 @@ def sel_arguments():
     print( "Today is {}".format( get_today_str() ) )
     print( "Vet shifters signed for the next {} months.".format(args.forward_interval) )
     print( "Shifters has to be on a shift in the past {} months.".format(args.backward_interval) )
-    print( "Verbosity level is {}: ".format(args.verbosity, loglevels) )
+    print( "Verbosity level is {}: \n".format(args.verbosity, loglevels) )
     
     return args
