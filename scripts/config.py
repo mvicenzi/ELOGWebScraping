@@ -1,2 +1,2 @@
-username = 'ascarpel'
-password = 'Summer2022'
+username = 'myusername'
+password = 'mypassword'
