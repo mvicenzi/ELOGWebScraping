@@ -14,7 +14,13 @@ def scrapeWebPage(log, startdate, df):
 
     # Update the url with details of the query: 
     # filters on shifter's block type and startdate
-    url = 'https://dbweb8.fnal.gov:8443/ECL/sbnfd/C/filter_shifts?shift%3AWeekday+Night=on&shift%3AWeekday+Day=on&shift%3AWeekday+Swing=on&shift%3AWeekend+Night=on&shift%3AWeekend+Day=on&shift%3AWeekend+Swing=on&startdate={}&action=Filter'.format(startdate)
+    base_url = "https://dbweb8.fnal.gov:8443/ECL/sbnfd/C/"
+    filter_week_shifts = "shift%3AWeekday+Night=on&shift%3AWeekday+Day=on&shift%3AWeekday+Swing=on"
+    filter_weekend_shifts = "&shift%3AWeekend+Night=on&shift%3AWeekend+Day=on&shift%3AWeekend+Swing=on"
+    filter_week_shadow = ""
+    filter_weekend_shadow = ""
+    filter_start_date="&startdate={}".format(startdate)
+    url = base_url+'filter_shifts?'+filter_week_shifts+filter_weekend_shifts+filter_week_shadow+filter_weekend_shadow+filter_start_date+"&action=Filter"
     page = log.getURL( url )
 
     # Information from the webpage are scraped. 
