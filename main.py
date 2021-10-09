@@ -37,7 +37,7 @@ def main():
 
     #Cross-compare the two databases
     print( "Vetting shifters: " )
-    vetShifters( pastShifts,  futureShifts, args.verbosity, args.filename )
+    vetShifters( pastShifts,  futureShifts, args.backward_interval, args.verbosity, args.filename )
     print( "Results written to file '{}'".format(args.filename))
 
     # Logout

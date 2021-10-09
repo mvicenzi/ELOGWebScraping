@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 
 from scripts.time_manager import str2dt
 
+import numpy
+
 import pandas as pd
 
 from scripts.colors import bcolors
@@ -29,14 +31,26 @@ def scrapeWebPage(log, startdate, df):
     cell_dict = {};
     shift_cells = soup.find_all( 'div', class_='shift_cell active' )
     for cell in shift_cells:
+        #print(cell)
         head = cell.find("div", class_="head")
-        assigment = cell.find("td", class_="assignment")
-        for link in head.find_all('a'):
-            cell_dict["day"] = str2dt(link['href'].split("dt=")[-1])
-            cell_dict["shift_type"] = link.text.strip()
-        cell_dict["collaborator"] = assigment.text.strip().split("request swap")[0].strip()
+
+        # Multiple signups for the same block
+        for signups in cell.find_all("tr"):
+            
+            assignment = signups.find("td", class_="assignment")
+            role = signups.find("td", class_="role_name")
+
+            if assignment.text.strip().split("request swap")[0].strip() == 'sign-up': 
+                continue
+
+            for link in head.find_all('a'):
+                cell_dict["day"] = str2dt(link['href'].split("dt=")[-1])
+                cell_dict["shift_block"] = link.text.strip()
+
+            cell_dict["shift_type"] = role.text.strip()
+            cell_dict["collaborator"] = assignment.text.strip().split("request swap")[0].strip()
         
-        df = df.append(cell_dict, ignore_index=True)
+            df = df.append(cell_dict, ignore_index=True)
     
     return df
 
@@ -49,8 +63,25 @@ def findCollaborator( df, name, surname ):
     print( df[df.collaborator==queryString] )
 
 
+def isValid( collaborator, futureDf, pastDf, dt ):
 
-def vetShifters( pastDf, futureDf, verbose, filename):
+    collabs = pastDf['collaborator'].values
+    
+    if not collaborator in collabs:
+        return False
+    else:
+
+        next_date = futureDf[ futureDf.collaborator == collaborator ].day.values[0]
+        lastshift_date = pastDf[ pastDf.collaborator == collaborator ].day.values[0]    
+
+        if next_date.astype('M8[M]')-numpy.timedelta64(dt, 'M')>lastshift_date.astype('M8[M]'): 
+            return False
+        else:
+            return True
+
+
+
+def vetShifters( pastDf, futureDf, interval, verbose, filename):
     """
     Print the list of shifters that needs to take a shadow shift ( any verbosity level)
     Print the list of shifters that scheduled a shadow shift ( verbose 1 )
@@ -59,10 +90,10 @@ def vetShifters( pastDf, futureDf, verbose, filename):
 
     fp = open(filename, 'w')
 
-    collabs = pastDf['collaborator'].values
+    
 
     for index, row in futureDf.iterrows():
-        if not row['collaborator'] in collabs:
+        if not isValid(row['collaborator'], futureDf, pastDf, interval):
 
             if 'Shadow' in row['shift_type']:
 
