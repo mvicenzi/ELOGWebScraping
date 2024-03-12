@@ -14,11 +14,11 @@ def main():
     args = sel_arguments()
 
     # Connect to the ecl website
-    log = WebLogin()
+    login = WebLogin()
 
     # Populate the base dataframe for the current month
     thisMonth = pd.DataFrame(columns=["day", "shift_type", "collaborator"])
-    thisMonth = scrapeWebPage( log, get_today_str(), thisMonth )
+    thisMonth = scrapeWebPage( login, get_today_str(), thisMonth )
 
     # Split the current months based on 'today' in past and future
     pastShifts = thisMonth[thisMonth.day<=get_today()]
@@ -26,13 +26,13 @@ def main():
 
     # Query more past shift blocks 
     for day in get_days_past( args.backward_interval ):
-        pastShifts = scrapeWebPage( log, day, pastShifts )
+        pastShifts = scrapeWebPage( login, day, pastShifts )
 
     pastShifts = pastShifts.sort_values('day').drop_duplicates('collaborator',keep='last')
 
     # Query more future shift blocks
     for day in get_days_future( args.forward_interval ):
-        futureShifts = scrapeWebPage( log, day, futureShifts )
+        futureShifts = scrapeWebPage( login, day, futureShifts )
     futureShifts = futureShifts.sort_values('day').drop_duplicates('collaborator',keep='first')
 
     #Cross-compare the two databases
@@ -41,7 +41,7 @@ def main():
     print( "Results written to file '{}'".format(args.filename))
 
     # Logout
-    log.logout()
+    login.logout()
 
     print("All done!")
 

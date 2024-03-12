@@ -8,7 +8,7 @@ import pandas as pd
 
 from scripts.colors import bcolors
 
-def scrapeWebPage(log, startdate, df):
+def scrapeWebPage(login, startdate, df):
     """
     Perform a query to the ELOG Shift Calendar page using the startdate string
     Update the scraped information in a pandas dataset df
@@ -23,7 +23,7 @@ def scrapeWebPage(log, startdate, df):
     filter_weekend_shadow = ""
     filter_start_date="&startdate={}".format(startdate)
     url = base_url+'filter_shifts?'+filter_week_shifts+filter_weekend_shifts+filter_week_shadow+filter_weekend_shadow+filter_start_date+"&action=Filter"
-    page = log.getURL( url )
+    page = login.getURL( url )
 
     # Information from the webpage are scraped. 
     # Assumes static xtml is returned by the query
@@ -32,6 +32,49 @@ def scrapeWebPage(log, startdate, df):
     shift_cells = soup.find_all( 'div', class_='shift_cell active' )
     for cell in shift_cells:
         #print(cell)
+        head = cell.find("div", class_="head")
+
+        # Multiple signups for the same block
+        for signups in cell.find_all("tr"):
+            
+            assignment = signups.find("td", class_="assignment")
+            role = signups.find("td", class_="role_name")
+
+            if assignment.text.strip().split("request swap")[0].strip() == 'sign-up': 
+                continue
+
+            for link in head.find_all('a'):
+                cell_dict["day"] = str2dt(link['href'].split("dt=")[-1])
+                cell_dict["shift_block"] = link.text.strip()
+
+            cell_dict["shift_type"] = role.text.strip()
+            cell_dict["collaborator"] = assignment.text.strip().split("request swap")[0].strip()
+        
+            df = df.append(cell_dict, ignore_index=True)
+    
+    return df
+
+
+def scrapeExperts(login, startdate, df):
+    """
+    Perform a query to the ELOG Expert Shift Calendar page using the startdate string
+    Update the scraped information in a pandas dataset df
+    """
+
+    # Update the url with details of the query: 
+    # filters on shifter's block type and startdate
+    base_url = "https://dbweb8.fnal.gov:8443/ECL/sbnfd/C/"
+    filter_expert_shifts = "shift%3AExpert=on"
+    filter_start_date="&startdate={}".format(startdate)
+    url = base_url+'filter_shifts?'+filter_expert_shifts+filter_start_date+"&action=Filter"
+    page = login.getURL( url )
+
+    # Information from the webpage are scraped. 
+    # Assumes static xtml is returned by the query
+    soup = BeautifulSoup(page.content, 'html.parser')
+    cell_dict = {};
+    shift_cells = soup.find_all( 'div', class_='shift_cell active' )
+    for cell in shift_cells:
         head = cell.find("div", class_="head")
 
         # Multiple signups for the same block
@@ -89,8 +132,6 @@ def vetShifters( pastDf, futureDf, interval, verbose, filename):
     """
 
     fp = open(filename, 'w')
-
-    
 
     for index, row in futureDf.iterrows():
         if not isValid(row['collaborator'], futureDf, pastDf, interval):

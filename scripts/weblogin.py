@@ -1,7 +1,7 @@
 import requests
 
 import getpass
-from scripts.config import user, elogurl 
+from scripts.config import user, loginurl 
 
 from bs4 import BeautifulSoup
 
@@ -35,7 +35,7 @@ class WebLogin:
             'password' : password
         }
 
-        self.top_level_url= elogurl
+        self.top_level_url= loginurl
 
         self.session = requests.session()
 
