@@ -1,6 +1,7 @@
 import requests
 
-from scripts.config import username, password
+import getpass
+from scripts.config import user, elogurl 
 
 from bs4 import BeautifulSoup
 
@@ -12,16 +13,29 @@ class WebLogin:
     def __init__( self ):
         """
         Create the web browsing session in the ELOG website for the user 
-        with username and password configured configure.py
+        with current username and ask for password, config.py can ovveride
+        the default username 
         """
-       
+        
+        username = getpass.getuser() ## ELOG username is GPVM username (always?)       
+        print( "You are logging in as {}".format( username ) )
+
+        # if config.py has a non-empty username, user it!
+        if user != "":
+            username = user
+
+        try:
+            password = getpass.getpass()
+        except Exception as e:
+            raise SystemExit(e)
+
         self.form_data = {
             'ret_url'  : "",
             'username' : username,
             'password' : password
         }
 
-        self.top_level_url='https://dbweb8.fnal.gov:8443/ECL/sbnfd/U/doLogin'
+        self.top_level_url= elogurl
 
         self.session = requests.session()
 

@@ -14,7 +14,8 @@ The scripts requires the python packages specified in the `requirements.txt` fil
 pip install -r requirements.txt
 ```
 
-Once the packages are successfully installed, it is important to edit the `scripts/config.py` with the `username` and `password` valid to access the [SBN-FD ELOG](https://dbweb8.fnal.gov:8443/ECL/sbnfd/E/index)
+The script assumes your current username is valid to access the [SBN-FD ELOG](https://dbweb8.fnal.gov:8443/ECL/sbnfd/E/index) and prompts you for a password.
+If that is not true, you can ovveride the default by specifying your `user` in `config.py`.
 
 ## Run the script 
 
@@ -53,4 +54,5 @@ The interval over which the query for both previous and future shifters are full
 
 ## Request help
 
-In case of help please contact Andrea Scarpelli (ascarpell@bnl.gov)
+The original developer of the scripts is Andrea Scarpelli (ascarpell@bnl.gov).
+In case of help, please contact the current run coordinators or Matteo Vicenzi (mvicenzi@bnl.gov).
