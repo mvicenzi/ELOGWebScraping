@@ -30,7 +30,7 @@ def main():
     # Logout
     login.logout()
     
-    pastShifts.to_csv("expert_shifts.csv")
+    pastShifts.to_csv("expert_shifts.csv",index=False)
 
     print("All done!")
 
