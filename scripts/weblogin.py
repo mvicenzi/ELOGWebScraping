@@ -52,7 +52,8 @@ class WebLogin:
         if message:
             print(message.text.strip())
             raise SystemExit()
-
+        
+        print("---> Login successful!")
 
     def _verify_login(self, resp):
 
@@ -61,9 +62,6 @@ class WebLogin:
 
         return message
           
-
-
-
     def getURL(self, url):
         """
         Get the given URL from the ELOG website (Provided the seesion to be active)
