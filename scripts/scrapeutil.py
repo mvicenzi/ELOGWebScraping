@@ -7,6 +7,7 @@ import numpy
 import pandas as pd
 
 from scripts.colors import bcolors
+from scripts.config import base_url
 
 def scrapeWebPage(login, startdate, df):
     """
@@ -16,7 +17,6 @@ def scrapeWebPage(login, startdate, df):
 
     # Update the url with details of the query: 
     # filters on shifter's block type and startdate
-    base_url = "https://dbweb8.fnal.gov:8443/ECL/sbnfd/C/"
     filter_week_shifts = "shift%3AWeekday+Night=on&shift%3AWeekday+Day=on&shift%3AWeekday+Swing=on"
     filter_weekend_shifts = "&shift%3AWeekend+Night=on&shift%3AWeekend+Day=on&shift%3AWeekend+Swing=on"
     filter_week_shadow = ""
@@ -50,8 +50,14 @@ def scrapeWebPage(login, startdate, df):
             cell_dict["shift_type"] = role.text.strip()
             cell_dict["collaborator"] = assignment.text.strip().split("request swap")[0].strip()
         
-            df = df.append(cell_dict, ignore_index=True)
-    
+            cell_df = pd.DataFrame([cell_dict])
+            cell_df = cell_df.dropna(axis=1, how='all')
+
+            if df.empty:
+                df = cell_df
+            else: 
+                df = pd.concat([df,cell_df], ignore_index=True)
+
     return df
 
 
@@ -92,8 +98,14 @@ def scrapeExperts(login, startdate, df):
 
             cell_dict["shift_type"] = role.text.strip()
             cell_dict["collaborator"] = assignment.text.strip().split("request swap")[0].strip()
-        
-            df = df.append(cell_dict, ignore_index=True)
+          
+            if len(assignment.contents) > 1:
+                cell_dict["institution"] = assignment.contents[1].rstrip(")").lstrip("&nbsp;(")
+            else:
+                cell_dict["institution"] = ""
+
+            cell_df = pd.DataFrame([cell_dict])
+            df = pd.concat([df,cell_df], ignore_index=True)
     
     return df
 
