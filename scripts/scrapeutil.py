@@ -92,6 +92,13 @@ def scrapeExperts(login, startdate, df):
                 continue
 
             for link in head.find_all('a'):
+                
+                day = str2dt(link['href'].split("dt=")[-1])
+                # if day already exists in dataframe, skip 
+                # avoids duplicates due to month boundaries
+                if day in df.day.unique():
+                    continue
+            
                 cell_dict["day"] = str2dt(link['href'].split("dt=")[-1])
                 cell_dict["shift_block"] = link.text.strip()
 
