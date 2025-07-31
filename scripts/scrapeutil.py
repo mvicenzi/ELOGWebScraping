@@ -69,7 +69,6 @@ def scrapeExperts(login, startdate, df):
 
     # Update the url with details of the query: 
     # filters on shifter's block type and startdate
-    base_url = "https://dbweb8.fnal.gov:8443/ECL/sbnfd/C/"
     filter_expert_shifts = "shift%3AExpert=on"
     filter_start_date="&startdate={}".format(startdate)
     url = base_url+'filter_shifts?'+filter_expert_shifts+filter_start_date+"&action=Filter"
@@ -105,7 +104,11 @@ def scrapeExperts(login, startdate, df):
                 cell_dict["institution"] = ""
 
             cell_df = pd.DataFrame([cell_dict])
-            df = pd.concat([df,cell_df], ignore_index=True)
+            
+            if df.empty:
+                df = cell_df
+            else: 
+                df = pd.concat([df,cell_df], ignore_index=True)
     
     return df
 
