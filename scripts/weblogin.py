@@ -18,11 +18,11 @@ class WebLogin:
         """
         
         username = getpass.getuser() ## ELOG username is GPVM username (always?)       
-        print( "You are logging in as {}".format( username ) )
-
-        # if config.py has a non-empty username, user it!
+        # if config.py has a non-empty username, use it!
         if user != "":
             username = user
+
+        print( "You are logging in as {}".format( username ) )
 
         try:
             password = getpass.getpass()
